@@ -8,9 +8,12 @@
 #ifndef ADC_SETUP_H
 #define ADC_SETUP_H
 
-//Function Delcarations.
+//External variables
+extern volatile uint16_t ADC_Raw_Value;
 
+//Function Delcarations.
 void ADC_Setup(void);
-void ADC_Raw_Value(void);
+uint16_t ADC_Current_Calc(void);
+void ADC_Enable_Conversion(void);
 
 #endif

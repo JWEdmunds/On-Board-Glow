@@ -1,66 +1,66 @@
    1                     ; C Compiler for STM8 (COSMIC Software)
    2                     ; Parser V4.12.1 - 30 Jun 2020
    3                     ; Generator (Limited) V4.4.12 - 02 Jul 2020
-  46                     ; 14 void ADC_Setup(void){
-  48                     	switch	.text
-  49  0000               _ADC_Setup:
-  53                     ; 16 ADC_DeInit(ADC1);
-  55  0000 ae5340        	ldw	x,#21312
-  56  0003 cd0000        	call	_ADC_DeInit
-  58                     ; 18 ADC_Init(ADC1, ADC_ConversionMode_Single, ADC_Resolution_12Bit, ADC_Prescaler_1);
-  60  0006 4b00          	push	#0
-  61  0008 4b00          	push	#0
-  62  000a 4b00          	push	#0
-  63  000c ae5340        	ldw	x,#21312
-  64  000f cd0000        	call	_ADC_Init
-  66  0012 5b03          	addw	sp,#3
-  67                     ; 20 ADC_ChannelCmd(ADC1, ADC_Channel_1, ENABLE);
-  69  0014 4b01          	push	#1
-  70  0016 ae0302        	ldw	x,#770
-  71  0019 89            	pushw	x
-  72  001a ae5340        	ldw	x,#21312
-  73  001d cd0000        	call	_ADC_ChannelCmd
-  75  0020 5b03          	addw	sp,#3
-  76                     ; 22 ADC_Cmd(ADC1, ENABLE);
-  78  0022 4b01          	push	#1
-  79  0024 ae5340        	ldw	x,#21312
-  80  0027 cd0000        	call	_ADC_Cmd
-  82  002a 84            	pop	a
-  83                     ; 23 }
-  86  002b 81            	ret
-  89                     	switch	.bss
-  90  0000               L12_i:
-  91  0000 0000          	ds.b	2
- 124                     ; 25 void ADC_current_Calc(){
- 125                     	switch	.text
- 126  002c               _ADC_current_Calc:
- 130                     ; 29   i = 0;
- 132  002c 5f            	clrw	x
- 133  002d cf0000        	ldw	L12_i,x
- 134                     ; 31   ADC_SoftwareStartConv(ADC1);
- 136  0030 ae5340        	ldw	x,#21312
- 137  0033 cd0000        	call	_ADC_SoftwareStartConv
- 140  0036               L14:
- 141                     ; 34     while (ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET)
- 143  0036 4b01          	push	#1
- 144  0038 ae5340        	ldw	x,#21312
- 145  003b cd0000        	call	_ADC_GetFlagStatus
- 147  003e 5b01          	addw	sp,#1
- 148  0040 4d            	tnz	a
- 149  0041 27f3          	jreq	L14
- 150                     ; 39   i = ADC_GetConversionValue(ADC1);
- 152  0043 ae5340        	ldw	x,#21312
- 153  0046 cd0000        	call	_ADC_GetConversionValue
- 155  0049 cf0000        	ldw	L12_i,x
- 156                     ; 41 }
- 159  004c 81            	ret
- 172                     	xdef	_ADC_current_Calc
- 173                     	xdef	_ADC_Setup
- 174                     	xref	_ADC_GetFlagStatus
- 175                     	xref	_ADC_GetConversionValue
- 176                     	xref	_ADC_ChannelCmd
- 177                     	xref	_ADC_SoftwareStartConv
- 178                     	xref	_ADC_Cmd
- 179                     	xref	_ADC_Init
- 180                     	xref	_ADC_DeInit
- 199                     	end
+  14                     	switch	.data
+  15  0000               _adc_debug:
+  16  0000 0000          	dc.w	0
+  50                     ; 15 void ADC_Setup(void){
+  52                     	switch	.text
+  53  0000               _ADC_Setup:
+  57                     ; 17 ADC_DeInit(ADC1);
+  59  0000 ae5340        	ldw	x,#21312
+  60  0003 cd0000        	call	_ADC_DeInit
+  62                     ; 19 ADC_Init(ADC1, ADC_ConversionMode_Continuous, ADC_Resolution_12Bit, ADC_Prescaler_1);
+  64  0006 4b00          	push	#0
+  65  0008 4b00          	push	#0
+  66  000a 4b04          	push	#4
+  67  000c ae5340        	ldw	x,#21312
+  68  000f cd0000        	call	_ADC_Init
+  70  0012 5b03          	addw	sp,#3
+  71                     ; 21 ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE);
+  73  0014 4b01          	push	#1
+  74  0016 4b08          	push	#8
+  75  0018 ae5340        	ldw	x,#21312
+  76  001b cd0000        	call	_ADC_ITConfig
+  78  001e 85            	popw	x
+  79                     ; 23 ADC_ChannelCmd(ADC1, ADC_Channel_1, ENABLE);
+  81  001f 4b01          	push	#1
+  82  0021 ae0302        	ldw	x,#770
+  83  0024 89            	pushw	x
+  84  0025 ae5340        	ldw	x,#21312
+  85  0028 cd0000        	call	_ADC_ChannelCmd
+  87  002b 5b03          	addw	sp,#3
+  88                     ; 25 ADC_Cmd(ADC1, DISABLE);
+  90  002d 4b00          	push	#0
+  91  002f ae5340        	ldw	x,#21312
+  92  0032 cd0000        	call	_ADC_Cmd
+  94  0035 84            	pop	a
+  95                     ; 26 }
+  98  0036 81            	ret
+ 123                     ; 28 void ADC_Enable_Conversion(void){
+ 124                     	switch	.text
+ 125  0037               _ADC_Enable_Conversion:
+ 129                     ; 30   ADC_Cmd(ADC1, ENABLE);
+ 131  0037 4b01          	push	#1
+ 132  0039 ae5340        	ldw	x,#21312
+ 133  003c cd0000        	call	_ADC_Cmd
+ 135  003f 84            	pop	a
+ 136                     ; 31 }
+ 139  0040 81            	ret
+ 163                     ; 33 uint16_t ADC_Current_Calc(void){
+ 164                     	switch	.text
+ 165  0041               _ADC_Current_Calc:
+ 169                     ; 35   return ADC_Raw_Value;
+ 171  0041 ce0000        	ldw	x,_ADC_Raw_Value
+ 174  0044 81            	ret
+ 198                     	xdef	_adc_debug
+ 199                     	xdef	_ADC_Enable_Conversion
+ 200                     	xdef	_ADC_Current_Calc
+ 201                     	xdef	_ADC_Setup
+ 202                     	xref	_ADC_Raw_Value
+ 203                     	xref	_ADC_ITConfig
+ 204                     	xref	_ADC_ChannelCmd
+ 205                     	xref	_ADC_Cmd
+ 206                     	xref	_ADC_Init
+ 207                     	xref	_ADC_DeInit
+ 226                     	end

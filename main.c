@@ -15,6 +15,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "stdbool.h"
+#include "glow_control.h"
 #include "main.h"
 
 main(void){
@@ -58,14 +59,13 @@ System_StateMachine();
 //main running routine in this loop
 while (1)
   {
-	ADC_current_Calc();
   //Three functions sit in the main loop. PWM input is measured to find the throttle position.
   //If Throttle position is within calibrated parameters, glow output is switched on.
   //PWM is output to the low side MOSFET to enable glow ignition
   //Current is measured and PWM output value adjusted.
   //PWM Measure
   //Current Measure
-  //PWM OUTPUT
+	Glow_PWM_Output();
   }
   ; //Main Loop
 } //Closes main

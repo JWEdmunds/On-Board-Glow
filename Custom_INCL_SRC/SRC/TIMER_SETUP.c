@@ -7,6 +7,7 @@
 //Includes
 #include "stm8l15x_tim2.h"
 #include "stm8l15x_tim3.h"
+#include "timer_setup.h"
 
 //Defines
 
@@ -15,7 +16,7 @@
 
 //System control timer
 #define SYSTEM_PERIOD_TIMER ((uint16_t)999)
-#define PWM_PERIOD_TIMER ((uint16_t)999)
+
 
 /*
 Timers on this PCB exist to capture PWM input and generate a corresponding PWM output to control the glow plug

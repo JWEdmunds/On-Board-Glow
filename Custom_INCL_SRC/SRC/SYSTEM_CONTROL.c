@@ -13,6 +13,8 @@
 #include "calibration.h"
 #include "timer_setup.h"
 #include "pwm_input.h"
+#include "adc_setup.h"
+
 //Defines
 #define ARM_COUNT_REQUIRED    ((uint8_t)5)
 #define ARM_PWM_TOLERANCE    ((uint16_t)5)
@@ -187,6 +189,8 @@ void System_StateMachine(void){
 		  }
 		  //Flash the LED..Like our noble lord and hero.. Flashman
 		  ledFlash(5, 1000);
+		  //Enable ADC Conversion
+		  ADC_Enable_Conversion();
 		return; //Drop back into main.c
 		
 		default:

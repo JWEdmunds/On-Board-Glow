@@ -7,33 +7,31 @@
 //Includes
 #include "stm8l15x_adc.h"
 #include "math.h"
+#include "adc_setup.h"
 
 //Variable
-
+volatile uint16_t adc_debug = 0;
 
 void ADC_Setup(void){
 //De-Init the ADC registers to default
 ADC_DeInit(ADC1);
 //Setup stuff
-ADC_Init(ADC1, ADC_ConversionMode_Single, ADC_Resolution_12Bit, ADC_Prescaler_1);
+ADC_Init(ADC1, ADC_ConversionMode_Continuous, ADC_Resolution_12Bit, ADC_Prescaler_1);
+//Setup ADC Interrupt
+ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE);
 //Enable specific ADC channel
 ADC_ChannelCmd(ADC1, ADC_Channel_1, ENABLE);
 //Enable ADC
-ADC_Cmd(ADC1, ENABLE);
+ADC_Cmd(ADC1, DISABLE);
 }
 
-void ADC_Raw_Value(){
-  //Set ADC value to 0
-  uint16_t adc_value = 0;
-  //Start single ADC conversion
-  ADC_SoftwareStartConv(ADC1);
-  
-  //Wait for conversion to complete
-    while (ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET)
-    {
-        //Wait
-    }
-  //Pull the RAW ADC reading
-  adc_value = ADC_GetConversionValue(ADC1);
-  
+void ADC_Enable_Conversion(void){
+  //Enable continuous conversion of ADC. Not active until system armed
+  ADC_Cmd(ADC1, ENABLE);
+}
+
+uint16_t ADC_Current_Calc(void){
+  //Return the ADC value from the ISR
+  return ADC_Raw_Value;
+
 }

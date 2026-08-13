@@ -26,11 +26,19 @@ typedef enum
 #define GLOW_PWM_MAX				PWM_PERIOD_TIMER
 #define GLOW_PWM_STEP				((uint16_t)1)
 #define GLOW_CURRENT_TARGET_ADC		((uint16_t)1)
+
+//This defines the absolute current limit. Tests with a 6R resistor with roughly a 1A pull, shows and ADC value at 1A of 620 Counts
+#define ADC_MAX_ALLOWABLE_COUNTS	((unint16_t) 1800) 	//Just under 3A
+#define ADC_RUNNING_COUNTS			((unint16_t) 900)	//Just under 1.5A
+
 //Variables
 static Glow_State_t glow_state = GLOW_STATUS;
 static bool disable_glow = TRUE;
+//Timer counter in seconds to differentiate running mode from startup
+//Essentially a 60 second counter.
+static uint8_t running_mode_counter = 0;
 
-static uint16_t PWM_Value = 0;
+static uint16_t PWM_Output_Value = 0;
 
 //Functions
 
@@ -39,9 +47,9 @@ void Glow_Output_Emergency_OFF(void){
   //Simple kill switch. If the OBG has made it passed arming and this far, but loses signal
   //The base timer for the output switches off completly and the pin is pulled LOW.
   //Set PWM value to minimum (0)
-  PWM_Value = GLOW_PWM_MIN;
+  PWM_Output_Value = GLOW_PWM_MIN;
   //Set time compare to zero
-  TIM3_SetCompare1(PWM_Value);
+  TIM3_SetCompare1(PWM_Output_Value);
   //Disable timer 3
   TIM3_Cmd(DISABLE);
   //Turn Pin LOW
@@ -58,28 +66,28 @@ void Glow_Output_ReEnable(void){
 
 
 
-void Glow_Current_Adjustment(){
+void Glow_Current_Adjustment(void){
   //Create new variable
   uint16_t current_adc;
 	//Read raw value from ADC
-    current_adc = ADC_Raw_Value();
+    current_adc = ADC_Current_Calc();
 	
     if (current_adc < GLOW_CURRENT_TARGET_ADC)
     {
-        if (PWM_Value < GLOW_PWM_MAX)
+        if (PWM_Output_Value < GLOW_PWM_MAX)
         {
-            PWM_Value += GLOW_PWM_STEP;
+            PWM_Output_Value += GLOW_PWM_STEP;
         }
     }
     else if (current_adc > GLOW_CURRENT_TARGET_ADC)
     {
-        if (PWM_Value > GLOW_PWM_MIN)
+        if (PWM_Output_Value > GLOW_PWM_MIN)
         {
-            PWM_Value -= GLOW_PWM_STEP;
+            PWM_Output_Value -= GLOW_PWM_STEP;
         }
     }
 
-    TIM3_SetCompare1(PWM_Value);
+    TIM3_SetCompare1(PWM_Output_Value);
 }
 
 bool Stick_Position_Detect(){

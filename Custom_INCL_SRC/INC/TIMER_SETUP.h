@@ -8,6 +8,8 @@
 #ifndef TIMER_SETUP_H
 #define TIMER_SETUP_H
 
+
+#define PWM_PERIOD_TIMER ((uint16_t)999)
 //Function Delcarations.
 
 void PWM_Output_Timer(void);

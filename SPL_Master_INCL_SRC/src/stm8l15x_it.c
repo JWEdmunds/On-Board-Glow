@@ -32,6 +32,7 @@
 #include "stm8l15x_tim1.h"
 #include "pwm_input.h"
 #include "system_control.h"
+#include "adc_setup.h"
 
 
 /** @addtogroup STM8L15x_StdPeriph_Template
@@ -46,6 +47,8 @@
 uint16_t pwm_rising;
 //PWM Capture for the Falling Edge
 uint16_t pwm_falling;
+//ADC Value
+volatile uint16_t ADC_Raw_Value = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -298,7 +301,10 @@ INTERRUPT_HANDLER(SWITCH_CSS_BREAK_DAC_IRQHandler,17)
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
-	//ADC_Interrupt();
+	//Obtain Value from ADC conversion
+	ADC_Raw_Value = ADC_GetConversionValue(ADC1);
+	//Clear the interrupt bit
+	ADC_ClearITPendingBit(ADC1, ADC_IT_EOC);
 }
 
 /**
