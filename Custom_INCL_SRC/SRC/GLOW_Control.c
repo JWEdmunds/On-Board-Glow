@@ -14,6 +14,7 @@
 #include "calibration.h"
 #include "stm8l15x_gpio.h"
 #include "glow_control.h"
+#include "system_control.h"
 
 //Defines
 typedef enum
@@ -22,22 +23,38 @@ typedef enum
     CURRENT_ADJUST
 } Glow_State_t;
 
+typedef enum
+{
+    GLOW_MODE_OFF = 0,
+    GLOW_MODE_STARTUP,
+    GLOW_MODE_RUNNING
+} Glow_Mode_t;
+
+Glow_Mode_t Glow_Mode;
+
 #define GLOW_PWM_MIN				((uint16_t)0)
 #define GLOW_PWM_MAX				PWM_PERIOD_TIMER
 #define GLOW_PWM_STEP				((uint16_t)1)
 #define GLOW_CURRENT_TARGET_ADC		((uint16_t)1)
 
 //This defines the absolute current limit. Tests with a 6R resistor with roughly a 1A pull, shows and ADC value at 1A of 620 Counts
-#define ADC_MAX_ALLOWABLE_COUNTS	((unint16_t) 1800) 	//Just under 3A
-#define ADC_RUNNING_COUNTS			((unint16_t) 900)	//Just under 1.5A
+#define ADC_MAX_ALLOWABLE_COUNTS	((uint16_t) 1800) 	//Just under 3A
+#define ADC_STARTUP_COUNTS			((uint16_t) 1500)	//Roughly 2.5A
+#define ADC_RUNNING_COUNTS			((uint16_t) 900)	//Just under 1.5A
+
+//Hysteresis used to determine if PWM should be adjusted caused by micro changes in the ADC output
+#define ADC_CURRENT_HYSTERESIS      ((uint16_t)20)
 
 //Variables
 static Glow_State_t glow_state = GLOW_STATUS;
 static bool disable_glow = TRUE;
+
 //Timer counter in seconds to differentiate running mode from startup
 //Essentially a 60 second counter.
 static uint8_t running_mode_counter = 0;
+static uint32_t running_mode_timer = 0;
 
+//Primary output value for the PWM compare
 static uint16_t PWM_Output_Value = 0;
 
 //Functions
@@ -64,30 +81,50 @@ void Glow_Output_ReEnable(void){
   TIM3_Cmd(ENABLE);
 }
 
-
-
 void Glow_Current_Adjustment(void){
   //Create new variable
-  uint16_t current_adc;
-	//Read raw value from ADC
-    current_adc = ADC_Current_Calc();
-	
-    if (current_adc < GLOW_CURRENT_TARGET_ADC)
-    {
-        if (PWM_Output_Value < GLOW_PWM_MAX)
-        {
-            PWM_Output_Value += GLOW_PWM_STEP;
-        }
-    }
-    else if (current_adc > GLOW_CURRENT_TARGET_ADC)
-    {
-        if (PWM_Output_Value > GLOW_PWM_MIN)
-        {
-            PWM_Output_Value -= GLOW_PWM_STEP;
-        }
-    }
-
-    TIM3_SetCompare1(PWM_Output_Value);
+  uint16_t target_current;
+  //Check which current target to use. Startup mode is only on for the first 2 minutes. Running mode is used thereafter. 
+  if (Glow_Mode == GLOW_MODE_STARTUP){
+	  target_current = ADC_STARTUP_COUNTS;
+	}
+	else if (Glow_Mode == GLOW_MODE_RUNNING){
+	  target_current = ADC_RUNNING_COUNTS;
+	}
+	else{
+	  PWM_Output_Value = 0;
+	  return;
+	}
+  //Over current protection for Glow plug
+  if (ADC_Raw_Value >= ADC_MAX_ALLOWABLE_COUNTS){
+	if (PWM_Output_Value >0){
+	  PWM_Output_Value--;
+	}
+	return;
+  }
+  //Normal current regulation
+  //If current below target - Increase PWM
+  if (ADC_Raw_Value < (target_current - ADC_CURRENT_HYSTERESIS)){
+    //Current too low - increase PWM
+    if (PWM_Output_Value < GLOW_PWM_MAX)
+	  {
+		  PWM_Output_Value += GLOW_PWM_STEP;
+	  }
+  }
+  else if (ADC_Raw_Value > (target_current + ADC_CURRENT_HYSTERESIS)){
+    //Current too high - decrease PWM
+	if (PWM_Output_Value > GLOW_PWM_MIN)
+	  {
+		  PWM_Output_Value -= GLOW_PWM_STEP;
+	  }
+  }
+  else
+	{
+    //Current is within hysteresis band
+    //Leave PWM_Output_Value unchanged
+	}
+  //Write PWM value to timer
+  TIM3_SetCompare1(PWM_Output_Value);
 }
 
 bool Stick_Position_Detect(){
@@ -108,13 +145,43 @@ void Glow_Disable_State(void){
   disable_glow = Stick_Position_Detect();
 }
 
+void Glow_Mode_Update(void)
+{
+    //Only count while in startup mode
+    if (Glow_Mode == GLOW_MODE_STARTUP)
+    {
+        //Has one second passed?
+        if ((uint32_t)(system_time_ms - running_mode_timer) >= 1000)
+        {
+            //Store time for next one-second interval
+            running_mode_timer = system_time_ms;
+
+            //Increment startup counter
+            running_mode_counter++;
+
+            //After 120 seconds, change to normal running mode
+            if (running_mode_counter >= 120)
+            {
+                Glow_Mode = GLOW_MODE_RUNNING;
+            }
+        }
+    }
+}
 /// --------------- Primary Glow output function
 
 void Glow_PWM_Output(){
   
+  //Start glow system in startup mode
+  Glow_Mode = GLOW_MODE_STARTUP;
 
+  //Reset startup timer
+  running_mode_counter = 0;
+  running_mode_timer = system_time_ms;
+  
   //Glow running loop
   while(1){
+	//Check which mode the glow driver is set in
+	Glow_Mode_Update();
 	//Check PWM state as well incase of RX brownout
 	if (PWM_Input_IsValid() == FALSE){
 	  //DISABLE GLOW OUTPUT COMPLETELY.. For safety of course.
@@ -139,7 +206,21 @@ void Glow_PWM_Output(){
 		case CURRENT_ADJUST:
 		  //Adjust PWM to suit current limits
 		  Glow_Current_Adjustment();
-		break;
-	  }
-	}
+		      if (disable_glow == TRUE)
+				{
+					//Turn glow output off
+					PWM_Output_Value = GLOW_PWM_MIN;
+					TIM3_SetCompare1(PWM_Output_Value);
+			
+					//Return to waiting state
+					glow_state = GLOW_STATUS;
+				}
+				else
+				{
+					//Glow still requested - regulate current
+					Glow_Current_Adjustment();
+					break;
+				  }
+				}
+  }
 }

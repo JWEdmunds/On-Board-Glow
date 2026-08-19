@@ -16,37 +16,40 @@
   80  000c cd0000        	call	_ADC_Setup
   82                     ; 39 enableInterrupts();
   85  000f 9a            rim
-  87                     ; 42 EEPROM_Setup();
-  90  0010 cd0000        	call	_EEPROM_Setup
-  92                     ; 45 Calibration_Read_EEPROM();
-  94  0013 cd0000        	call	_Calibration_Read_EEPROM
-  96                     ; 48 Delay_ms(500);
-  98  0016 ae01f4        	ldw	x,#500
-  99  0019 cd0000        	call	_Delay_ms
- 101  001c               L12:
- 102                     ; 52 	PWM_Received_Flag();
- 104  001c cd0000        	call	_PWM_Received_Flag
- 106                     ; 54   while (PWM_Input_IsValid() == FALSE);
- 108  001f cd0000        	call	_PWM_Input_IsValid
- 110  0022 4d            	tnz	a
- 111  0023 27f7          	jreq	L12
- 112                     ; 57 System_StateMachine();
- 114  0025 cd0000        	call	_System_StateMachine
- 116  0028               L72:
- 117                     ; 68 	Glow_PWM_Output();
- 119  0028 cd0000        	call	_Glow_PWM_Output
- 122  002b 20fb          	jra	L72
- 135                     	xdef	_main
- 136                     	xref	_Glow_PWM_Output
- 137                     	xref	_System_StateMachine
- 138                     	xref	_Delay_ms
- 139                     	xref	_Calibration_Read_EEPROM
- 140                     	xref	_EEPROM_Setup
- 141                     	xref	_SYSCTRL_Timer
- 142                     	xref	_PWM_Input_IsValid
- 143                     	xref	_PWM_Received_Flag
- 144                     	xref	_PWM_Input
- 145                     	xref	_clk_setup
- 146                     	xref	_gpio_setup
- 147                     	xref	_ADC_Setup
- 166                     	end
+  87                     ; 42 Delay_ms(3000);
+  90  0010 ae0bb8        	ldw	x,#3000
+  91  0013 cd0000        	call	_Delay_ms
+  93                     ; 45 EEPROM_Setup();
+  95  0016 cd0000        	call	_EEPROM_Setup
+  97                     ; 48 Calibration_Read_EEPROM();
+  99  0019 cd0000        	call	_Calibration_Read_EEPROM
+ 101                     ; 51 Delay_ms(500);
+ 103  001c ae01f4        	ldw	x,#500
+ 104  001f cd0000        	call	_Delay_ms
+ 106  0022               L12:
+ 107                     ; 55 	PWM_Received_Flag();
+ 109  0022 cd0000        	call	_PWM_Received_Flag
+ 111                     ; 57   while (PWM_Input_IsValid() == FALSE);
+ 113  0025 cd0000        	call	_PWM_Input_IsValid
+ 115  0028 4d            	tnz	a
+ 116  0029 27f7          	jreq	L12
+ 117                     ; 60 System_StateMachine();
+ 119  002b cd0000        	call	_System_StateMachine
+ 121  002e               L72:
+ 122                     ; 71 	Glow_PWM_Output();
+ 124  002e cd0000        	call	_Glow_PWM_Output
+ 127  0031 20fb          	jra	L72
+ 140                     	xdef	_main
+ 141                     	xref	_Glow_PWM_Output
+ 142                     	xref	_System_StateMachine
+ 143                     	xref	_Delay_ms
+ 144                     	xref	_Calibration_Read_EEPROM
+ 145                     	xref	_EEPROM_Setup
+ 146                     	xref	_SYSCTRL_Timer
+ 147                     	xref	_PWM_Input_IsValid
+ 148                     	xref	_PWM_Received_Flag
+ 149                     	xref	_PWM_Input
+ 150                     	xref	_clk_setup
+ 151                     	xref	_gpio_setup
+ 152                     	xref	_ADC_Setup
+ 171                     	end

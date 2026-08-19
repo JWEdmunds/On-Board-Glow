@@ -27,9 +27,11 @@ System_State_t system_state = STATE_CALIBRATION;
 
 void Delay_ms(uint16_t delay_ms){
   
-    uint32_t start_time = system_time_ms;
+    uint32_t start_time;
+	
+	start_time = System_Time_Get();
 
-    while ((uint32_t)(system_time_ms - start_time) < delay_ms)
+    while ((uint32_t)(System_Time_Get() - start_time) < delay_ms)
     {
         /* Wait */
     }
@@ -54,6 +56,21 @@ void ledFlash(uint8_t flash_count, uint16_t delay_ms)
         Delay_ms(delay_ms);
     }
 }
+
+// AI snippet
+uint32_t System_Time_Get(void)
+{
+    uint32_t time_snapshot;
+
+    disableInterrupts();
+
+    time_snapshot = system_time_ms;
+
+    enableInterrupts();
+
+    return time_snapshot;
+}
+//Ai snippet
 
 bool systemArming(void){
     static uint8_t arm_count = 0;
@@ -131,54 +148,42 @@ void System_StateMachine(void){
 		Re_Calibration_Samples = 0;
 	  
 		for (i = 0; i < 100; ++i){
-  
-			/* Calculate difference without signed arithmetic */
-			if (pwm_width_us >= stick_high_position)
-			{
-				pwm_diff_recal = pwm_width_us - stick_high_position;
-			}
-			else
-			{
-				pwm_diff_recal = stick_high_position - pwm_width_us;
-			}
-	
-			/* Accept readings within 20 us of calibrated stick high */
-			if (pwm_diff_recal <= 20U)
+		  //Bit of AI code after the old stuff was broken
+			if (Recalibration_High_Position_Detect() == TRUE)
 			{
 				++Re_Calibration_Samples;
 			}
 			else
 			{
-				/* Require the stick to remain continuously high */
 				Re_Calibration_Samples = 0;
 			}
-	
+		
 			if (Re_Calibration_Samples >= 50)
 			{
 				break;
 			}
-	
-			/* Always wait for another receiver frame */
+		
 			Delay_ms(20);
 			}
-		if (Re_Calibration_Samples >= 50)
-		{
-			FLASH_Unlock(FLASH_MemType_Data);
-	
-			if (EEPROM_Write_U16(EEPROM_MAGIC_ADDRESS, 0x0000U) == TRUE)
+			//If the recalibration stick is in the correct position, open the FLASH and erase the magic number, then start the calibration routine.
+			if (Re_Calibration_Samples >= 50)
 			{
-				FLASH_Lock(FLASH_MemType_Data);
-	
-				magic = 0x0000U;
-				Calibration_Sequence_Main();
+				FLASH_Unlock(FLASH_MemType_Data);
+		
+				if (EEPROM_Write_U16(EEPROM_MAGIC_ADDRESS, 0x0000U) == TRUE)
+				{
+					FLASH_Lock(FLASH_MemType_Data);
+		
+					magic = 0x0000U;
+					Calibration_Sequence_Main();
+				}
+				else
+				{
+					FLASH_Lock(FLASH_MemType_Data);
+		
+					/* EEPROM failure indication could go here */
+				}
 			}
-			else
-			{
-				FLASH_Lock(FLASH_MemType_Data);
-	
-				/* EEPROM failure indication could go here */
-			}
-		}
 		//Go to next case
 		system_state = STATE_ARMING;
 		break;

@@ -59,6 +59,19 @@ If the throttle is below 20% the remote glow will be enabled.
   TIM1_Cmd(ENABLE);
 }
 
+uint16_t PWM_Input_GetWidth(void){
+  //Create a new variable
+  uint16_t pwm_snapshot;
+  //Disable interrupts to obtain value. Unfortunately this is global, but 8 bit MCU.. 16 bit value, what ya gonna do ?
+  disableInterrupts();
+  //Grab a snappy
+  pwm_snapshot = pwm_width_us;
+  //Re-enable interrupts
+  enableInterrupts();
+  //Return the value
+  return pwm_snapshot;
+}
+
 void PWM_Input_VALID(void){
 //This function checks to see if there is a valid calibration for PWM boundaries stored in the EEPROM.
 //If a valid calibration is found, It used those values; if not is uses pre-defined defaults.

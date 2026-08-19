@@ -26,6 +26,9 @@
 #define EEPROM_GLOW_OFF_ADDRESS       (EEPROM_CAL_BASE_ADDRESS + 12U)
 #define EEPROM_INVERTED_ADDRESS       (EEPROM_CAL_BASE_ADDRESS + 14U)
 
+//Calibration check valid value
+#define CALIBRATION_MIN_STICK_SPAN    ((uint16_t)300)
+
 /* Variables owned by calibration.c */
 extern volatile uint16_t stick_high_position;
 extern volatile uint16_t stick_low_position;
@@ -50,6 +53,10 @@ void Calibrate_Stick_Limits(void);
 void Calibrate_Glow_Limits(void);
 uint16_t Calibrate_Stick_Position(void);
 
+bool Calibration_Values_Valid(void);
+
 bool EEPROM_Write_U16(uint32_t address, uint16_t value);
+
+bool Recalibration_High_Position_Detect(void);
 
 #endif /* CALIBRATION_H */

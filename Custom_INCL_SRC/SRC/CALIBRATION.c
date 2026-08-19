@@ -5,6 +5,8 @@
 */
 
 //Location for functions and variables that determine PWM output and by extension GLOW drive
+//This is probably the busiest of the sources as the calibration routine has a lot of hoops to go through
+//too ensure that it doesnt get bricked.
 
 //Includes
 #include "stm8l15x_flash.h"
@@ -13,6 +15,7 @@
 #include "pwm_input.h"
 
 //Defines
+
 
 //Declarations
 
@@ -65,6 +68,7 @@ Calibration_Data_TypeDef;
 
 //Functions
 
+//Basic Flash setup for the MCU
 void EEPROM_Setup(void){
   //De-init all FLASH registers to default values
   FLASH_DeInit();
@@ -72,6 +76,7 @@ void EEPROM_Setup(void){
   FLASH_SetProgrammingTime(FLASH_ProgramTime_Standard);
 }
 
+//8 Bit write with a basic readback test.
 static bool EEPROM_Write_U8(uint32_t address, uint8_t value){
   //Function to write 8 bit value to EEPROM
   //Create nickname :)
@@ -82,11 +87,11 @@ static bool EEPROM_Write_U8(uint32_t address, uint8_t value){
   status = FLASH_WaitForLastOperation(FLASH_MemType_Data);
   //Return True or False
   //return (status == FLASH_Status_Successful_Operation);
-  
-      if ((uint8_t)status != (uint8_t)FLASH_FLAG_HVOFF)
-    {
-        return FALSE;
-    }
+  //AI broke this in the first instance trying to improve things :D took ages to work out. Had to go back forward a few times till the broken bit became apparent.
+	if ((uint8_t)status != (uint8_t)FLASH_FLAG_HVOFF)
+	{
+		return FALSE;
+	}
 
     if (FLASH_ReadByte(address) != value)
     {
@@ -114,9 +119,11 @@ bool EEPROM_Write_U16(uint32_t address, uint16_t value){
   return TRUE;
 }
 
+//Long arse function. Opens the EEPROM, writes each value in turn and then locks the EEPROM.
 bool Calibration_Write_EEPROM(void){
   //Boolean declaration
     bool result = TRUE;
+
 	  //Unlock EEPROM
 	  FLASH_Unlock(FLASH_MemType_Data);
 
@@ -172,6 +179,7 @@ bool Calibration_Write_EEPROM(void){
     return result;
 }
 
+//Simple read function for the 16 bit value
 static uint16_t EEPROM_Read_U16(uint32_t address){
   //Function to read and combine 2 8 bit values from 2 memory locations
   //Create 2 integers to store the upper and lower bytes
@@ -183,6 +191,31 @@ static uint16_t EEPROM_Read_U16(uint32_t address){
   //Or the values together
   return (uint16_t)(low_byte | (high_byte << 8));
 }
+
+//AI only code-----------------
+bool Calibration_Values_Valid(void)
+{
+    uint16_t calibration_span;
+
+    /* Calculate stick travel regardless of channel direction */
+    if (stick_high_position >= stick_low_position)
+    {
+        calibration_span = stick_high_position - stick_low_position;
+    }
+    else
+    {
+        calibration_span = stick_low_position - stick_high_position;
+    }
+
+    /* High and low positions must be sufficiently different */
+    if (calibration_span < CALIBRATION_MIN_STICK_SPAN)
+    {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+//AI only Code-----------------
 
 void Calibration_Read_EEPROM(void){
   //Read each value into RAM
@@ -247,14 +280,14 @@ uint16_t Calibrate_Stick_Position(void){
   //Reset all values before use
   stable_count = 0;
   pwm_difference = 0;
-  previous_pwm = pwm_width_us;
-  current_pwm = pwm_width_us;
+  previous_pwm = PWM_Input_GetWidth();
+  current_pwm = PWM_Input_GetWidth();
   //Check PWM stability to exclude the stick movement
   while (stable_count < 20u){
 	//Delay to allow stick movement
 	Delay_ms(20);
 	//Record current PWM value
-	current_pwm = pwm_width_us;
+	current_pwm = PWM_Input_GetWidth();;
 	//Check to see if current PWM is greater than the previous sample (default 0 so will always be)
 	  if (current_pwm > previous_pwm){
 	  //Simple maths to determine difference
@@ -277,7 +310,7 @@ uint16_t Calibrate_Stick_Position(void){
   //Loops through the reading of the PWM value 100 times. Required to discard any PWM values outside the mean value recorded.
 	for (k = 0; k < 100; ++k){
 	  //write the first PWM value into the array,
-	  samples[k] = pwm_width_us;
+	  samples[k] = PWM_Input_GetWidth();
 	  //Delay to allow moving of stick
 	  Delay_ms(50);
 	}
@@ -293,10 +326,14 @@ void Calibrate_Stick_Limits(void){
   stick_high_position = Calibrate_Stick_Position();
 	//Flashy Flashy *3
 	ledFlash(3, 500);
-	  //Call function for lower stick position
-	  stick_low_position = Calibrate_Stick_Position();
-		//Flashy Flashy *4
-		ledFlash(4, 500);
+	  //Added delay to allow stick to be moved to correct position. Causes erratic pick up if done within the sampling loop.
+	  Delay_ms(2000);
+		//Call function for lower stick position
+		stick_low_position = Calibrate_Stick_Position();
+		  //Flashy Flashy *4
+		  ledFlash(4, 500);
+			//Added delay to allow stick to be moved to correct position. Causes erratic pick up if done within the sampling loop.
+			Delay_ms(2000);
 }
 
 void Calibrate_Glow_Limits(void){
@@ -306,20 +343,29 @@ void Calibrate_Glow_Limits(void){
   glow_off = Calibrate_Stick_Position();
   //Flashy Flashy *5
 	ledFlash(5, 500);
-	  //Move stick to on position. This will be the lower position. Extending the trim below this value will switch off
-	  //this is so that throttle cut will kill the engine.
-	  glow_on = Calibrate_Stick_Position();
-	  //Flashy Flashy *6
-		ledFlash(6, 500);
+	  //Added delay to allow stick to be moved to correct position. Causes erratic pick up if done within the sampling loop.
+	  Delay_ms(2000);	
+		//Move stick to on position. This will be the lower position. Extending the trim below this value will switch off
+		//this is so that throttle cut will kill the engine.
+		glow_on = Calibrate_Stick_Position();
+		//Flashy Flashy *6
+		  ledFlash(6, 500);
 }
 
+//AI CODE------------ I was tired
 bool Calibration_Data_VALID(void)
 {
+	//Check Magic number
     if (magic != CALIBRATION_MAGIC_VALUE)
     {
         return FALSE;
     }
-
+	//Check values are not stupid
+	if (Calibration_Values_Valid() == FALSE)
+	{
+		return FALSE;
+	}
+	//Check PWM limits are not stupid
     if (pwm_lower_limit >= pwm_upper_limit)
     {
         return FALSE;
@@ -327,6 +373,40 @@ bool Calibration_Data_VALID(void)
 
     return TRUE;
 }
+
+bool Recalibration_High_Position_Detect(void)
+{
+    uint16_t stick_span;
+    uint16_t recal_threshold;
+
+    if (stick_high_position >= stick_low_position)
+    {
+        //Normal direction
+        stick_span = stick_high_position - stick_low_position;
+
+        recal_threshold =
+            stick_low_position + ((stick_span * 3U) / 4U);
+
+        return (pwm_width_us >= recal_threshold);
+    }
+    else
+    {
+        //Inverted direction
+        stick_span = stick_low_position - stick_high_position;
+
+        recal_threshold =
+            stick_low_position - ((stick_span * 3U) / 4U);
+
+        return (pwm_width_us <= recal_threshold);
+    }
+}
+//AI Code---------------
+
+
+
+
+
+
 
 void Calibration_Sequence_Main(void){
   //This function allows you to calibrate the upper and lower limits of the available PWM in addition too
@@ -336,25 +416,74 @@ void Calibration_Sequence_Main(void){
   //This sequence will be written in the destructions.
   //This sequence makes HEAVY use of the LED flashing. I have written a 500ms flasher that is specific to this function
   int i = 0;
-  //Flash LED 10 Times to indicate programming mod. No other function will use this length of flashing (I would rather leave 10 flashes than cut short)  
-  ledFlash(10, 500);
-  //Function records PWM value relative to upper and lower position of sticks
-  Calibrate_Stick_Limits();
-  //Calibrate_Glow_Position. This is kept seperate from stick limits for reasons lof legibility
-  Calibrate_Glow_Limits();
-  //Sort the PWM limits and inverted bit
-  if (stick_high_position > stick_low_position){
-		pwm_upper_limit = stick_high_position;
-		pwm_lower_limit = stick_low_position;
-		throttle_inverted = FALSE;
+  //While loop created to allow immediate recalibartion if data not valid. Found this out the hard way.
+  while(1){
+	//Flash LED 10 Times to indicate programming mod. No other function will use this length of flashing (I would rather leave 10 flashes than cut short)  
+	ledFlash(10, 500);
+	//Function records PWM value relative to upper and lower position of sticks
+	Calibrate_Stick_Limits();
+	//Calibrate_Glow_Position. This is kept seperate from stick limits for reasons lof legibility
+	Calibrate_Glow_Limits();
+	//Sort the PWM limits and inverted bit
+	if (stick_high_position > stick_low_position){
+		  pwm_upper_limit = stick_high_position;
+		  pwm_lower_limit = stick_low_position;
+		  throttle_inverted = FALSE;
+	  }
+	  else{
+		  pwm_upper_limit = stick_low_position;
+		  pwm_lower_limit = stick_high_position;
+		  throttle_inverted = TRUE;
+	  }
+/*	//Check values are outside the check value to prevent writing of bullshit values; (Did this during design.. fecked things up royally)
+	if (Calibration_Values_Valid() == TRUE)
+	  {
+		//Write the sodding EEPROM, FINALLY :D
+		Calibration_Write_EEPROM();
+		//Slight delay to seperate flashes
+		Delay_ms(1000);
+		//Calibration complete LED flash
+		ledFlash(10, 500);
+		//Break out of the loop
+		break;
+	  }
+	else
+	  {
+		//Furiously flash LED 
+		ledFlash(20, 50);
+		//Go back to start of loooooop. Allows user to drop right into the recalibration routine instead of having to use the recalibration state.
+		//continue;
+		*/
+		
+		//Check calibration values are sensible
+	if (Calibration_Values_Valid() == TRUE)
+	{
+	  //Calibration is good - attempt EEPROM write
+	  if (Calibration_Write_EEPROM() == TRUE)
+	  {
+		  Delay_ms(1000);
+		  ledFlash(10, 500);
+	
+		  //Calibration complete
+		  break;
+	  }
+    else
+	  {
+        //EEPROM write failed
+        ledFlash(20, 50);
+
+        //Start calibration again
+        continue;
+	  }
 	}
-	else{
-		pwm_upper_limit = stick_low_position;
-		pwm_lower_limit = stick_high_position;
-		throttle_inverted = TRUE;
+  else
+	{
+    //Calibration values were rubbish
+    ledFlash(20, 50);
+
+    //Start calibration again
+    continue;
+		
 	}
-  //Write the sodding EEPROM, FINALLY :D
-  Calibration_Write_EEPROM();
-  //Flash the LED 10 times.
-  ledFlash(10, 500);
+  }
 }

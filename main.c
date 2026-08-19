@@ -38,6 +38,9 @@ ADC_Setup();
 //Enable Interrupts
 enableInterrupts();
 
+//Delay to allow RX to bind
+Delay_ms(3000);
+
 //Configure EEPROM Default
 EEPROM_Setup();
 

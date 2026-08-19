@@ -23,6 +23,7 @@ typedef enum
 extern System_State_t system_state;
 
 //Function Delcarations.
+uint32_t System_Time_Get(void);
 void Delay_ms(uint16_t delay_ms);
 void ledFlash(uint8_t flash_count, uint16_t delay_ms);
 bool systemArming(void);

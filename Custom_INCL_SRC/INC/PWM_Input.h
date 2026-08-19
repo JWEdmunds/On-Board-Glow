@@ -19,6 +19,7 @@ extern volatile bool pwm_sample_received;
 
 //Function Declarations.
 void PWM_Input(void);
+uint16_t PWM_Input_GetWidth(void);
 void PWM_Input_GetCapture(void);
 void PWM_Boundary_Default(void);
 void PWM_Boundary_Calibrated(void);

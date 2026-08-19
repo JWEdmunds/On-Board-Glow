@@ -51,6 +51,7 @@ spl_master_incl_src\inc\stm8l15x_tim3.h
 spl_master_incl_src\inc\stm8l15x_tim4.h
 spl_master_incl_src\inc\stm8l15x_usart.h
 ..\..\..\..\program files (x86)\cosmic\fse_compilers\cxstm8\hstm8\modsl0.h
+custom_incl_src\inc\interrupt_functions.h
 spl_master_incl_src\inc\stm8l15x_pwr.h
 spl_master_incl_src\inc\stm8l15x_syscfg.h
 spl_master_incl_src\inc\stm8l15x_tim5.h

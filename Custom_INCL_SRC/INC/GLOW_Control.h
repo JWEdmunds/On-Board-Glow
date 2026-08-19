@@ -16,6 +16,7 @@ void Glow_Output_ReEnable(void);
 void Glow_Current_Adjustment(void);
 bool Stick_Position_Detect(void);
 void Glow_Disable_State(void);
+void Glow_Mode_Update(void);
 void Glow_PWM_Output(void);
 
 
