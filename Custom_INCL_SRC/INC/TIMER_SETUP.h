@@ -15,7 +15,7 @@
 void PWM_Output_Timer(void);
 void SYSCTRL_Timer(void);
 void SYS_Delay_NOP(volatile uint32_t count);
-void PWM_Output_Control();
+void PWM_Output_Control(void);
 
 
 #endif

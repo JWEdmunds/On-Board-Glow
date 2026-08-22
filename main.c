@@ -32,6 +32,12 @@ PWM_Input();
 //Setup SYSCTRL_Timer defaults
 SYSCTRL_Timer();
 
+//I am a moron and forgot to switch this bugger on
+PWM_Output_Timer();
+
+//Also forgot this one
+PWM_Output_Control();
+
 //Setup ADC for PWM capture
 ADC_Setup();
 

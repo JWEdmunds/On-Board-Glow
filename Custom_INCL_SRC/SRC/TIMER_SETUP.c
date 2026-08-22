@@ -26,7 +26,7 @@ Timer 2 = General Purpose timer for system control. Not routed out.
 Timer 3 = PWM Output on PIN G1 (PB1)
 */
 
-void PWM_Output_Timer(){
+void PWM_Output_Timer(void){
 /*Used to control the low-side gate driver for the OBG MOSFET. Works in conjunction with current readings to make sure that the OBG delivers consistant 3A @ 1.5V (Adjustable).*/
   //De-Init the timer registers
   TIM3_DeInit();
@@ -42,9 +42,11 @@ void PWM_Output_Timer(){
   TIM3_Cmd(ENABLE);
 }
 
-void PWM_Output_Control(){
+void PWM_Output_Control(void){
   //Set the PWM output pin. This should be enabled with an output of 0 to prevent it driving the MOSFET at random :)
   TIM3_OC1Init(TIM3_OCMode_PWM1, TIM3_OutputState_Enable, 0, TIM3_OCPolarity_High, TIM3_OCIdleState_Reset);
+  //PWM output enable
+  TIM3_CtrlPWMOutputs(ENABLE);
 }
 
 

@@ -182,150 +182,158 @@
  544  00dd 4a            	dec	a
  545  00de 271b          	jreq	L551
  546  00e0 4a            	dec	a
- 547  00e1 2603cc016c    	jreq	L152
- 548  00e6               L161:
- 549                     ; 201 		default:
- 549                     ; 202 		system_state = STATE_ARMING;
- 551  00e6 35020004      	mov	_system_state,#2
- 552                     ; 203 		break;
- 554  00ea 20eb          	jra	L312
- 555  00ec               L351:
- 556                     ; 135 	  case STATE_CALIBRATION:
- 556                     ; 136 		  //Checks to see if any existing calibration is in the eeprom, if not it runs through the calibration routine
- 556                     ; 137 		  if(Calibration_Data_VALID()==FALSE){
- 558  00ec cd0000        	call	_Calibration_Data_VALID
- 560  00ef 4d            	tnz	a
- 561  00f0 2603          	jrne	L322
- 562                     ; 139 			Calibration_Sequence_Main();
- 564  00f2 cd0000        	call	_Calibration_Sequence_Main
- 566  00f5               L322:
- 567                     ; 142 		  system_state = STATE_ARMING;
- 569  00f5 35020004      	mov	_system_state,#2
- 570                     ; 144 		break;
- 572  00f9 20dc          	jra	L312
- 573  00fb               L551:
- 574                     ; 146 	  case STATE_RECALIBRATION:
- 574                     ; 147 		//Set variable to 0
- 574                     ; 148 		Re_Calibration_Samples = 0;
- 576  00fb 5f            	clrw	x
- 577  00fc 1f03          	ldw	(OFST-1,sp),x
- 579                     ; 150 		for (i = 0; i < 100; ++i){
- 581  00fe 5f            	clrw	x
- 582  00ff 1f01          	ldw	(OFST-3,sp),x
- 584  0101               L522:
- 585                     ; 152 			if (Recalibration_High_Position_Detect() == TRUE)
- 587  0101 cd0000        	call	_Recalibration_High_Position_Detect
- 589  0104 a101          	cp	a,#1
- 590  0106 2609          	jrne	L332
- 591                     ; 154 				++Re_Calibration_Samples;
- 593  0108 1e03          	ldw	x,(OFST-1,sp)
- 594  010a 1c0001        	addw	x,#1
- 595  010d 1f03          	ldw	(OFST-1,sp),x
- 598  010f 2003          	jra	L532
- 599  0111               L332:
- 600                     ; 158 				Re_Calibration_Samples = 0;
- 602  0111 5f            	clrw	x
- 603  0112 1f03          	ldw	(OFST-1,sp),x
- 605  0114               L532:
- 606                     ; 161 			if (Re_Calibration_Samples >= 50)
- 608  0114 9c            	rvf
- 609  0115 1e03          	ldw	x,(OFST-1,sp)
- 610  0117 a30032        	cpw	x,#50
- 611  011a 2e15          	jrsge	L132
- 612                     ; 163 				break;
- 614                     ; 166 			Delay_ms(20);
- 616  011c ae0014        	ldw	x,#20
- 617  011f cd0000        	call	_Delay_ms
- 619                     ; 150 		for (i = 0; i < 100; ++i){
- 621  0122 1e01          	ldw	x,(OFST-3,sp)
- 622  0124 1c0001        	addw	x,#1
- 623  0127 1f01          	ldw	(OFST-3,sp),x
- 627  0129 9c            	rvf
- 628  012a 1e01          	ldw	x,(OFST-3,sp)
- 629  012c a30064        	cpw	x,#100
- 630  012f 2fd0          	jrslt	L522
- 631  0131               L132:
- 632                     ; 169 			if (Re_Calibration_Samples >= 50)
- 634  0131 9c            	rvf
- 635  0132 1e03          	ldw	x,(OFST-1,sp)
- 636  0134 a30032        	cpw	x,#50
- 637  0137 2f2b          	jrslt	L142
- 638                     ; 171 				FLASH_Unlock(FLASH_MemType_Data);
- 640  0139 a6f7          	ld	a,#247
- 641  013b cd0000        	call	_FLASH_Unlock
- 643                     ; 173 				if (EEPROM_Write_U16(EEPROM_MAGIC_ADDRESS, 0x0000U) == TRUE)
- 645  013e 5f            	clrw	x
- 646  013f 89            	pushw	x
- 647  0140 ae1000        	ldw	x,#4096
- 648  0143 89            	pushw	x
- 649  0144 ae0000        	ldw	x,#0
- 650  0147 89            	pushw	x
- 651  0148 cd0000        	call	_EEPROM_Write_U16
- 653  014b 5b06          	addw	sp,#6
- 654  014d a101          	cp	a,#1
- 655  014f 260e          	jrne	L342
- 656                     ; 175 					FLASH_Lock(FLASH_MemType_Data);
- 658  0151 a6f7          	ld	a,#247
- 659  0153 cd0000        	call	_FLASH_Lock
- 661                     ; 177 					magic = 0x0000U;
- 663  0156 5f            	clrw	x
- 664  0157 cf0000        	ldw	_magic,x
- 665                     ; 178 					Calibration_Sequence_Main();
- 667  015a cd0000        	call	_Calibration_Sequence_Main
- 670  015d 2005          	jra	L142
- 671  015f               L342:
- 672                     ; 182 					FLASH_Lock(FLASH_MemType_Data);
- 674  015f a6f7          	ld	a,#247
- 675  0161 cd0000        	call	_FLASH_Lock
- 677  0164               L142:
- 678                     ; 188 		system_state = STATE_ARMING;
- 680  0164 35020004      	mov	_system_state,#2
- 681                     ; 189 		break;
- 683  0168 acd700d7      	jpf	L312
- 684  016c               L152:
- 685                     ; 190 	  case STATE_ARMING:
- 685                     ; 191 		  //Break into Main loop arfter arming and flashy McFlashing the LED
- 685                     ; 192 		  while (systemArming() == FALSE){
- 687  016c cd006f        	call	_systemArming
- 689  016f 4d            	tnz	a
- 690  0170 27fa          	jreq	L152
- 691                     ; 196 		  ledFlash(5, 1000);
- 693  0172 ae03e8        	ldw	x,#1000
- 694  0175 89            	pushw	x
- 695  0176 a605          	ld	a,#5
- 696  0178 cd002d        	call	_ledFlash
- 698  017b 85            	popw	x
- 699                     ; 198 		  ADC_Enable_Conversion();
- 701  017c cd0000        	call	_ADC_Enable_Conversion
- 703                     ; 199 		return; //Drop back into main.c
- 706  017f 5b04          	addw	sp,#4
- 707  0181 81            	ret
- 708  0182               L122:
- 709                     ; 203 		break;
- 710  0182 acd700d7      	jpf	L312
- 772                     	xref	_ADC_Enable_Conversion
- 773                     	xref	_pwm_width_us
- 774                     	xref	_Recalibration_High_Position_Detect
- 775                     	xref	_EEPROM_Write_U16
- 776                     	xref	_Calibration_Sequence_Main
- 777                     	xref	_Calibration_Data_VALID
- 778                     	xref	_magic
- 779                     	xref	_pwm_lower_limit
- 780                     	xref	_pwm_upper_limit
- 781                     	xdef	_System_StateMachine
- 782                     	xdef	_systemArming
- 783                     	xdef	_ledFlash
- 784                     	xdef	_Delay_ms
- 785                     	xdef	_System_Time_Get
- 786                     	xdef	_system_state
- 787                     	xdef	_system_time_ms
- 788                     	xref	_GPIO_ResetBits
- 789                     	xref	_GPIO_SetBits
- 790                     	xref	_FLASH_Lock
- 791                     	xref	_FLASH_Unlock
- 810                     	xref	c_ltor
- 811                     	xref	c_lcmp
- 812                     	xref	c_lsub
- 813                     	xref	c_uitolx
- 814                     	xref	c_rtol
- 815                     	end
+ 547  00e1 2603          	jrne	L02
+ 548  00e3 cc0176        	jp	L152
+ 549  00e6               L02:
+ 550  00e6               L161:
+ 551                     ; 201 		default:
+ 551                     ; 202 		system_state = STATE_ARMING;
+ 553  00e6 35020004      	mov	_system_state,#2
+ 554                     ; 203 		break;
+ 556  00ea 20eb          	jra	L312
+ 557  00ec               L351:
+ 558                     ; 135 	  case STATE_CALIBRATION:
+ 558                     ; 136 		  //Checks to see if any existing calibration is in the eeprom, if not it runs through the calibration routine
+ 558                     ; 137 		  if(Calibration_Data_VALID()==FALSE){
+ 560  00ec cd0000        	call	_Calibration_Data_VALID
+ 562  00ef 4d            	tnz	a
+ 563  00f0 2603          	jrne	L322
+ 564                     ; 139 			Calibration_Sequence_Main();
+ 566  00f2 cd0000        	call	_Calibration_Sequence_Main
+ 568  00f5               L322:
+ 569                     ; 142 		  system_state = STATE_ARMING;
+ 571  00f5 35020004      	mov	_system_state,#2
+ 572                     ; 144 		break;
+ 574  00f9 20dc          	jra	L312
+ 575  00fb               L551:
+ 576                     ; 146 	  case STATE_RECALIBRATION:
+ 576                     ; 147 		//Set variable to 0
+ 576                     ; 148 		Re_Calibration_Samples = 0;
+ 578  00fb 5f            	clrw	x
+ 579  00fc 1f03          	ldw	(OFST-1,sp),x
+ 581                     ; 150 		for (i = 0; i < 100; ++i){
+ 583  00fe 5f            	clrw	x
+ 584  00ff 1f01          	ldw	(OFST-3,sp),x
+ 586  0101               L522:
+ 587                     ; 152 			if (Recalibration_High_Position_Detect() == TRUE)
+ 589  0101 cd0000        	call	_Recalibration_High_Position_Detect
+ 591  0104 a101          	cp	a,#1
+ 592  0106 2609          	jrne	L332
+ 593                     ; 154 				++Re_Calibration_Samples;
+ 595  0108 1e03          	ldw	x,(OFST-1,sp)
+ 596  010a 1c0001        	addw	x,#1
+ 597  010d 1f03          	ldw	(OFST-1,sp),x
+ 600  010f 2003          	jra	L532
+ 601  0111               L332:
+ 602                     ; 158 				Re_Calibration_Samples = 0;
+ 604  0111 5f            	clrw	x
+ 605  0112 1f03          	ldw	(OFST-1,sp),x
+ 607  0114               L532:
+ 608                     ; 161 			if (Re_Calibration_Samples >= 50)
+ 610  0114 9c            	rvf
+ 611  0115 1e03          	ldw	x,(OFST-1,sp)
+ 612  0117 a30032        	cpw	x,#50
+ 613  011a 2e15          	jrsge	L132
+ 614                     ; 163 				break;
+ 616                     ; 166 			Delay_ms(20);
+ 618  011c ae0014        	ldw	x,#20
+ 619  011f cd0000        	call	_Delay_ms
+ 621                     ; 150 		for (i = 0; i < 100; ++i){
+ 623  0122 1e01          	ldw	x,(OFST-3,sp)
+ 624  0124 1c0001        	addw	x,#1
+ 625  0127 1f01          	ldw	(OFST-3,sp),x
+ 629  0129 9c            	rvf
+ 630  012a 1e01          	ldw	x,(OFST-3,sp)
+ 631  012c a30064        	cpw	x,#100
+ 632  012f 2fd0          	jrslt	L522
+ 633  0131               L132:
+ 634                     ; 169 			if (Re_Calibration_Samples >= 50)
+ 636  0131 9c            	rvf
+ 637  0132 1e03          	ldw	x,(OFST-1,sp)
+ 638  0134 a30032        	cpw	x,#50
+ 639  0137 2f35          	jrslt	L142
+ 640                     ; 171 				FLASH_Unlock(FLASH_MemType_Data);
+ 642  0139 a6f7          	ld	a,#247
+ 643  013b cd0000        	call	_FLASH_Unlock
+ 645                     ; 173 				if (EEPROM_Write_U16(EEPROM_MAGIC_ADDRESS, 0x0000U) == TRUE)
+ 647  013e 5f            	clrw	x
+ 648  013f 89            	pushw	x
+ 649  0140 ae1000        	ldw	x,#4096
+ 650  0143 89            	pushw	x
+ 651  0144 ae0000        	ldw	x,#0
+ 652  0147 89            	pushw	x
+ 653  0148 cd0000        	call	_EEPROM_Write_U16
+ 655  014b 5b06          	addw	sp,#6
+ 656  014d a101          	cp	a,#1
+ 657  014f 260e          	jrne	L342
+ 658                     ; 175 					FLASH_Lock(FLASH_MemType_Data);
+ 660  0151 a6f7          	ld	a,#247
+ 661  0153 cd0000        	call	_FLASH_Lock
+ 663                     ; 177 					magic = 0x0000U;
+ 665  0156 5f            	clrw	x
+ 666  0157 cf0000        	ldw	_magic,x
+ 667                     ; 178 					Calibration_Sequence_Main();
+ 669  015a cd0000        	call	_Calibration_Sequence_Main
+ 672  015d 200f          	jra	L142
+ 673  015f               L342:
+ 674                     ; 182 					FLASH_Lock(FLASH_MemType_Data);
+ 676  015f a6f7          	ld	a,#247
+ 677  0161 cd0000        	call	_FLASH_Lock
+ 679                     ; 184 					ledFlash(20, 50);
+ 681  0164 ae0032        	ldw	x,#50
+ 682  0167 89            	pushw	x
+ 683  0168 a614          	ld	a,#20
+ 684  016a cd002d        	call	_ledFlash
+ 686  016d 85            	popw	x
+ 687  016e               L142:
+ 688                     ; 188 		system_state = STATE_ARMING;
+ 690  016e 35020004      	mov	_system_state,#2
+ 691                     ; 189 		break;
+ 693  0172 acd700d7      	jpf	L312
+ 694  0176               L152:
+ 695                     ; 190 	  case STATE_ARMING:
+ 695                     ; 191 		  //Break into Main loop arfter arming and flashy McFlashing the LED
+ 695                     ; 192 		  while (systemArming() == FALSE){
+ 697  0176 cd006f        	call	_systemArming
+ 699  0179 4d            	tnz	a
+ 700  017a 27fa          	jreq	L152
+ 701                     ; 196 		  ledFlash(5, 1000);
+ 703  017c ae03e8        	ldw	x,#1000
+ 704  017f 89            	pushw	x
+ 705  0180 a605          	ld	a,#5
+ 706  0182 cd002d        	call	_ledFlash
+ 708  0185 85            	popw	x
+ 709                     ; 198 		  ADC_Enable_Conversion();
+ 711  0186 cd0000        	call	_ADC_Enable_Conversion
+ 713                     ; 199 		return; //Drop back into main.c
+ 716  0189 5b04          	addw	sp,#4
+ 717  018b 81            	ret
+ 718  018c               L122:
+ 719                     ; 203 		break;
+ 720  018c acd700d7      	jpf	L312
+ 782                     	xref	_ADC_Enable_Conversion
+ 783                     	xref	_pwm_width_us
+ 784                     	xref	_Recalibration_High_Position_Detect
+ 785                     	xref	_EEPROM_Write_U16
+ 786                     	xref	_Calibration_Sequence_Main
+ 787                     	xref	_Calibration_Data_VALID
+ 788                     	xref	_magic
+ 789                     	xref	_pwm_lower_limit
+ 790                     	xref	_pwm_upper_limit
+ 791                     	xdef	_System_StateMachine
+ 792                     	xdef	_systemArming
+ 793                     	xdef	_ledFlash
+ 794                     	xdef	_Delay_ms
+ 795                     	xdef	_System_Time_Get
+ 796                     	xdef	_system_state
+ 797                     	xdef	_system_time_ms
+ 798                     	xref	_GPIO_ResetBits
+ 799                     	xref	_GPIO_SetBits
+ 800                     	xref	_FLASH_Lock
+ 801                     	xref	_FLASH_Unlock
+ 820                     	xref	c_ltor
+ 821                     	xref	c_lcmp
+ 822                     	xref	c_lsub
+ 823                     	xref	c_uitolx
+ 824                     	xref	c_rtol
+ 825                     	end

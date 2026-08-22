@@ -15,7 +15,8 @@
 #include "pwm_input.h"
 
 //Defines
-
+#define PWM_LOWER_LIMIT_DEFAULT    ((uint16_t)950)
+#define PWM_UPPER_LIMIT_DEFAULT    ((uint16_t)2100)
 
 //Declarations
 
@@ -195,7 +196,21 @@ static uint16_t EEPROM_Read_U16(uint32_t address){
 //AI only code-----------------
 bool Calibration_Values_Valid(void)
 {
-    uint16_t calibration_span;
+  uint16_t calibration_span;
+	//Added this function as you could calibrate outside the working range of the TX (+ EPA). This locked you out of arming and reclibrating.
+    //Check high stick value is believable
+    if ((stick_high_position < PWM_LOWER_LIMIT_DEFAULT) ||
+        (stick_high_position > PWM_UPPER_LIMIT_DEFAULT))
+    {
+        return FALSE;
+    }
+
+    //Check low stick value is believable
+    if ((stick_low_position < PWM_LOWER_LIMIT_DEFAULT) ||
+        (stick_low_position > PWM_UPPER_LIMIT_DEFAULT))
+    {
+        return FALSE;
+    }
 
     /* Calculate stick travel regardless of channel direction */
     if (stick_high_position >= stick_low_position)

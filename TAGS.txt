@@ -109,7 +109,7 @@ ADC_ConversionMode_Continuous	spl_master_incl_src\inc\stm8l15x_adc.h	108;"	enume
 ADC_ConversionMode_Single	spl_master_incl_src\inc\stm8l15x_adc.h	107;"	enumerator	enum:__anon12
 ADC_ConversionMode_TypeDef	spl_master_incl_src\inc\stm8l15x_adc.h	109;"	typedef	typeref:enum:__anon12
 ADC_Current_Calc	custom_incl_src\inc\adc_setup.h	16;"	prototype	signature:(void)
-ADC_Current_Calc	custom_incl_src\src\adc_setup.c	33;"	function	signature:(void)
+ADC_Current_Calc	custom_incl_src\src\adc_setup.c	37;"	function	signature:(void)
 ADC_DMACmd	spl_master_incl_src\inc\stm8l15x_adc.h	365;"	prototype	signature:(ADC_TypeDef* ADCx, FunctionalState NewState)
 ADC_DMACmd	spl_master_incl_src\src\stm8l15x_adc.c	760;"	function	signature:(ADC_TypeDef* ADCx, FunctionalState NewState)
 ADC_DRH_CONVDATA	spl_master_incl_src\inc\stm8l15x.h	2380;"	macro
@@ -141,6 +141,8 @@ ADC_GetFlagStatus	spl_master_incl_src\inc\stm8l15x_adc.h	371;"	prototype	signatu
 ADC_GetFlagStatus	spl_master_incl_src\src\stm8l15x_adc.c	859;"	function	signature:(ADC_TypeDef* ADCx, ADC_FLAG_TypeDef ADC_FLAG)
 ADC_GetITStatus	spl_master_incl_src\inc\stm8l15x_adc.h	373;"	prototype	signature:(ADC_TypeDef* ADCx, ADC_IT_TypeDef ADC_IT)
 ADC_GetITStatus	spl_master_incl_src\src\stm8l15x_adc.c	912;"	function	signature:(ADC_TypeDef* ADCx, ADC_IT_TypeDef ADC_IT)
+ADC_Get_Raw_Value	custom_incl_src\inc\adc_setup.h	18;"	prototype	signature:(void)
+ADC_Get_Raw_Value	custom_incl_src\src\adc_setup.c	43;"	function	signature:(void)
 ADC_Group_FastChannels	spl_master_incl_src\inc\stm8l15x_adc.h	193;"	enumerator	enum:__anon17
 ADC_Group_SlowChannels	spl_master_incl_src\inc\stm8l15x_adc.h	192;"	enumerator	enum:__anon17
 ADC_Group_TypeDef	spl_master_incl_src\inc\stm8l15x_adc.h	195;"	typedef	typeref:enum:__anon17
@@ -696,7 +698,7 @@ CSSLSE_struct	spl_master_incl_src\inc\stm8l15x.h	569;"	struct
 CSSR	spl_master_incl_src\inc\stm8l15x.h	743;"	member	struct:CLK_struct
 CURRENT_ADJUST	custom_incl_src\src\glow_control.c	23;"	enumerator	enum:__anon3	file:
 Calibrate_Glow_Limits	custom_incl_src\inc\calibration.h	53;"	prototype	signature:(void)
-Calibrate_Glow_Limits	custom_incl_src\src\calibration.c	335;"	function	signature:(void)
+Calibrate_Glow_Limits	custom_incl_src\src\calibration.c	339;"	function	signature:(void)
 Calibrate_Stick_Limits	custom_incl_src\inc\calibration.h	52;"	prototype	signature:(void)
 Calibrate_Stick_Limits	custom_incl_src\src\calibration.c	323;"	function	signature:(void)
 Calibrate_Stick_Position	custom_incl_src\inc\calibration.h	54;"	prototype	signature:(void)
@@ -705,11 +707,11 @@ Calibration_Averaging	custom_incl_src\inc\calibration.h	50;"	prototype	signature
 Calibration_Averaging	custom_incl_src\src\calibration.c	241;"	function	signature:(void)
 Calibration_Data_TypeDef	custom_incl_src\src\calibration.c	67;"	typedef	typeref:struct:__anon2	file:
 Calibration_Data_VALID	custom_incl_src\inc\calibration.h	47;"	prototype	signature:(void)
-Calibration_Data_VALID	custom_incl_src\src\calibration.c	350;"	function	signature:(void)
+Calibration_Data_VALID	custom_incl_src\src\calibration.c	356;"	function	signature:(void)
 Calibration_Read_EEPROM	custom_incl_src\inc\calibration.h	45;"	prototype	signature:(void)
 Calibration_Read_EEPROM	custom_incl_src\src\calibration.c	220;"	function	signature:(void)
 Calibration_Sequence_Main	custom_incl_src\inc\calibration.h	49;"	prototype	signature:(void)
-Calibration_Sequence_Main	custom_incl_src\src\calibration.c	405;"	function	signature:(void)
+Calibration_Sequence_Main	custom_incl_src\src\calibration.c	411;"	function	signature:(void)
 Calibration_Values_Valid	custom_incl_src\inc\calibration.h	56;"	prototype	signature:(void)
 Calibration_Values_Valid	custom_incl_src\src\calibration.c	196;"	function	signature:(void)
 Calibration_Write_EEPROM	custom_incl_src\inc\calibration.h	46;"	prototype	signature:(void)
@@ -1166,17 +1168,17 @@ GTR	spl_master_incl_src\inc\stm8l15x.h	2232;"	member	struct:USART_struct
 Glow_Current_Adjustment	custom_incl_src\inc\glow_control.h	16;"	prototype	signature:(void)
 Glow_Current_Adjustment	custom_incl_src\src\glow_control.c	84;"	function	signature:(void)
 Glow_Disable_State	custom_incl_src\inc\glow_control.h	18;"	prototype	signature:(void)
-Glow_Disable_State	custom_incl_src\src\glow_control.c	143;"	function	signature:(void)
+Glow_Disable_State	custom_incl_src\src\glow_control.c	156;"	function	signature:(void)
 Glow_Mode	custom_incl_src\src\glow_control.c	33;"	variable
 Glow_Mode_Update	custom_incl_src\inc\glow_control.h	19;"	prototype	signature:(void)
-Glow_Mode_Update	custom_incl_src\src\glow_control.c	148;"	function	signature:(void)
+Glow_Mode_Update	custom_incl_src\src\glow_control.c	161;"	function	signature:(void)
 Glow_Mode_t	custom_incl_src\src\glow_control.c	31;"	typedef	typeref:enum:__anon4	file:
 Glow_Output_Emergency_OFF	custom_incl_src\inc\glow_control.h	14;"	prototype	signature:(void)
 Glow_Output_Emergency_OFF	custom_incl_src\src\glow_control.c	63;"	function	signature:(void)
 Glow_Output_ReEnable	custom_incl_src\inc\glow_control.h	15;"	prototype	signature:(void)
 Glow_Output_ReEnable	custom_incl_src\src\glow_control.c	78;"	function	signature:(void)
 Glow_PWM_Output	custom_incl_src\inc\glow_control.h	20;"	prototype	signature:(void)
-Glow_PWM_Output	custom_incl_src\src\glow_control.c	172;"	function
+Glow_PWM_Output	custom_incl_src\src\glow_control.c	185;"	function
 Glow_State_t	custom_incl_src\src\glow_control.c	24;"	typedef	typeref:enum:__anon3	file:
 HSE_VALUE	spl_master_incl_src\inc\stm8l15x.h	110;"	macro
 HSICALR	spl_master_incl_src\inc\stm8l15x.h	745;"	member	struct:CLK_struct
@@ -1721,10 +1723,10 @@ PWM_Input_IsValid	custom_incl_src\src\pwm_input.c	104;"	function	signature:(void
 PWM_Input_VALID	custom_incl_src\inc\pwm_input.h	26;"	prototype	signature:(void)
 PWM_Input_VALID	custom_incl_src\src\pwm_input.c	75;"	function	signature:(void)
 PWM_LOWER_LIMIT_DEFAULT	custom_incl_src\src\pwm_input.c	20;"	macro	file:
-PWM_Output_Control	custom_incl_src\inc\timer_setup.h	18;"	prototype	signature:()
-PWM_Output_Control	custom_incl_src\src\timer_setup.c	45;"	function
+PWM_Output_Control	custom_incl_src\inc\timer_setup.h	18;"	prototype	signature:(void)
+PWM_Output_Control	custom_incl_src\src\timer_setup.c	45;"	function	signature:(void)
 PWM_Output_Timer	custom_incl_src\inc\timer_setup.h	15;"	prototype	signature:(void)
-PWM_Output_Timer	custom_incl_src\src\timer_setup.c	29;"	function
+PWM_Output_Timer	custom_incl_src\src\timer_setup.c	29;"	function	signature:(void)
 PWM_Output_Value	custom_incl_src\src\glow_control.c	58;"	variable	file:
 PWM_PERIOD_TIMER	custom_incl_src\inc\timer_setup.h	12;"	macro
 PWM_Received_Flag	custom_incl_src\inc\pwm_input.h	27;"	prototype	signature:(void)
@@ -2169,7 +2171,7 @@ RTC_WUTRL_RESET_VALUE	spl_master_incl_src\inc\stm8l15x.h	391;"	macro
 RTC_struct	spl_master_incl_src\inc\stm8l15x.h	302;"	struct
 RXCRCR	spl_master_incl_src\inc\stm8l15x.h	1657;"	member	struct:SPI_struct
 Recalibration_High_Position_Detect	custom_incl_src\inc\calibration.h	60;"	prototype	signature:(void)
-Recalibration_High_Position_Detect	custom_incl_src\src\calibration.c	371;"	function	signature:(void)
+Recalibration_High_Position_Detect	custom_incl_src\src\calibration.c	377;"	function	signature:(void)
 S16_MAX	spl_master_incl_src\inc\stm8l15x.h	255;"	macro
 S16_MIN	spl_master_incl_src\inc\stm8l15x.h	256;"	macro
 S32_MAX	spl_master_incl_src\inc\stm8l15x.h	258;"	macro
@@ -2292,15 +2294,15 @@ SYSCFG_RMPCR3_USART3TR_REMAP	spl_master_incl_src\inc\stm8l15x.h	717;"	macro
 SYSCFG_TypeDef	spl_master_incl_src\inc\stm8l15x.h	680;"	typedef	typeref:struct:SYSCFG_struct
 SYSCFG_struct	spl_master_incl_src\inc\stm8l15x.h	674;"	struct
 SYSCTRL_Timer	custom_incl_src\inc\timer_setup.h	16;"	prototype	signature:(void)
-SYSCTRL_Timer	custom_incl_src\src\timer_setup.c	51;"	function
+SYSCTRL_Timer	custom_incl_src\src\timer_setup.c	53;"	function
 SYSDivFactor	spl_master_incl_src\src\stm8l15x_clk.c	74;"	variable
 SYSTEM_CONTROL_H	custom_incl_src\inc\system_control.h	9;"	macro
 SYSTEM_PERIOD_TIMER	custom_incl_src\src\timer_setup.c	18;"	macro	file:
 SYS_Delay_NOP	custom_incl_src\inc\timer_setup.h	17;"	prototype	signature:(volatile uint32_t count)
-SYS_Delay_NOP	custom_incl_src\src\timer_setup.c	66;"	function	signature:(volatile uint32_t count)
+SYS_Delay_NOP	custom_incl_src\src\timer_setup.c	68;"	function	signature:(volatile uint32_t count)
 SetBit	spl_master_incl_src\inc\stm8l15x.h	2980;"	macro
 Stick_Position_Detect	custom_incl_src\inc\glow_control.h	17;"	prototype	signature:(void)
-Stick_Position_Detect	custom_incl_src\src\glow_control.c	130;"	function
+Stick_Position_Detect	custom_incl_src\src\glow_control.c	137;"	function	signature:(void)
 System_StateMachine	custom_incl_src\inc\system_control.h	30;"	prototype	signature:(void)
 System_StateMachine	custom_incl_src\src\system_control.c	108;"	function	signature:(void)
 System_State_t	custom_incl_src\inc\system_control.h	21;"	typedef	typeref:enum:__anon1

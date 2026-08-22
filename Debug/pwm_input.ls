@@ -63,10 +63,10 @@
  201  0040               _PWM_Input_VALID:
  205                     ; 82   if ((pwm_width_us >= PWM_LOWER_LIMIT_DEFAULT) && (pwm_width_us <= PWM_UPPER_LIMIT_DEFAULT)){
  207  0040 ce0000        	ldw	x,_pwm_width_us
- 208  0043 a301f4        	cpw	x,#500
+ 208  0043 a303b6        	cpw	x,#950
  209  0046 250e          	jrult	L74
  211  0048 ce0000        	ldw	x,_pwm_width_us
- 212  004b a309c5        	cpw	x,#2501
+ 212  004b a30835        	cpw	x,#2101
  213  004e 2406          	jruge	L74
  214                     ; 83 		PWM_Valid = TRUE;
  216  0050 35010002      	mov	L3_PWM_Valid,#1

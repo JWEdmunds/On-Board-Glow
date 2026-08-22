@@ -15,5 +15,6 @@ extern volatile uint16_t ADC_Raw_Value;
 void ADC_Setup(void);
 uint16_t ADC_Current_Calc(void);
 void ADC_Enable_Conversion(void);
+uint16_t ADC_Get_Raw_Value(void);
 
 #endif

@@ -6,3 +6,7 @@ Keyword=ST7Workspace-V0.7
 [Project0]
 Filename=on_board_glow.stp
 Dependencies=
+[Options]
+ActiveProject=on_board_glow
+ActiveConfig=Debug
+AddSortedElements=1

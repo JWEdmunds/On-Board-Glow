@@ -180,8 +180,8 @@ void System_StateMachine(void){
 				else
 				{
 					FLASH_Lock(FLASH_MemType_Data);
-		
-					/* EEPROM failure indication could go here */
+					//Flash LEd to indicate failure
+					ledFlash(20, 50);
 				}
 			}
 		//Go to next case

@@ -17,8 +17,8 @@
 #define PWM_TIM1_PERIOD             ((uint16_t)0xFFFF)
 #define PWM_TIM1_REPETITION_COUNTER ((uint8_t)0)
 #define PWM_INPUT_FILTER    		((uint8_t)0x03)
-#define PWM_LOWER_LIMIT_DEFAULT		((uint16_t)0x01F4)
-#define PWM_UPPER_LIMIT_DEFAULT		((uint16_t)0x09C4)
+#define PWM_LOWER_LIMIT_DEFAULT		((uint16_t)950)
+#define PWM_UPPER_LIMIT_DEFAULT		((uint16_t)2100)
 
 
 //Variables
